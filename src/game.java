@@ -333,7 +333,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 		
 		//draw the antialiasing button
 		g2d.setColor(Color.WHITE);
-		g2d.drawString("Antialiasing", 20, 450);
+		g2d.drawString("Anti-Aliasing", 20, 450);
 		g2d.setColor(Color.GRAY);
 		if (antialiasing){g2d.setColor(Color.YELLOW);}
 		g2d.drawRect(15, 437, 120, 15);
