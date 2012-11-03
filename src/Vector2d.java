@@ -24,4 +24,8 @@ public class Vector2d {
 	public void incY(double i){y+=i;}
 	public void multX(double m){x*=m;}
 	public void multY(double m){y*=m;}
+	
+	public double distanceTo(Vector2d v){
+		return Math.sqrt((v.x-x)*(v.x-x)+(v.y-y)*(v.y-y));
+	}
 }

@@ -7,12 +7,12 @@ public class AreaPulse {
 	int radius;
 	int range;
 	
-	AreaPulse(int newx,int newy)
+	AreaPulse(int newx,int newy,int newRange)
 	{
 		x=newx;
 		y=newy;
 		radius = 0;
-		range = 50;
+		range = newRange;
 	}
 	
 	public void setX(int newx){x = newx;}
@@ -24,12 +24,14 @@ public class AreaPulse {
 	
 	public void updateRadius()
 	{
-		radius+=4;
+		radius+=(int)(range/20);
 	}
 
 	public void draw(Graphics2D g2d)
 	{
-		g2d.setColor(new Color(0x80FF0000, true));
+		int alpha = (int) (255*(1.0-(double)radius/range));
+		if (alpha>255) alpha = 255;
+		g2d.setColor(new Color(255,0,0,alpha));
 		g2d.fillOval(x-radius, y-radius, radius*2, radius*2);
 	}
 }

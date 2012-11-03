@@ -56,7 +56,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 	static int offsetX = 150;
 	static int offsetY = 50;
 	int money = 0;
-	static final int startingMoney = 100;
+	static final int startingMoney = 10000000;
 	int refundDivider = 2;
 	int minutes = 0,seconds = 0;
 	int prevSeconds=0,prevMinutes=0;
@@ -75,7 +75,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 	static final int towerCost = 20;
 	static final int areaPulseCost = 200;
 	static final int wallCost = 5;
-	static final int missileTurretCost = 100;
+	static final int missileTurretCost = 150;
 	static final int towerAccuracy = 3;
 
 	//2d array that stores occupation booleans
@@ -83,7 +83,12 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 	
 	//towers arraylist
 	ArrayList<Tower> twrs = new ArrayList<Tower>();
-	static final int towerFireDelay = 80;//80
+	static final int towerFireDelay = 60;//80
+	static final int missileFireDelay = 120;
+	static final int areaPulseFireDelay = 100;
+	static final int towerRange = 100;
+	static final int missileRange = 200;
+	static final int areaPulseRange = 50;
 	
 	//bullets arraylist
 	ArrayList<Bullet> blts = new ArrayList<Bullet>();
@@ -460,7 +465,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 						}
 					}
 					if (found){
-						apls.add(new AreaPulse(twrs.get(i).getCenterX(),twrs.get(i).getCenterY()));
+						apls.add(new AreaPulse(twrs.get(i).getCenterX(),twrs.get(i).getCenterY(),areaPulseRange));
 					} else {
 						twrs.get(i).fireCounter=1000;
 					}
@@ -654,18 +659,18 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 			switch (selectedTower){
 			case 0:
 				g2d.drawRect(mX-mX%cellwidth, mY-mY%cellwidth, cellwidth*2, cellwidth*2);
-				g2d.drawOval(mX-mX%cellwidth+cellwidth-100, mY-mY%cellwidth+cellwidth-100, 200, 200);
+				g2d.drawOval(mX-mX%cellwidth+cellwidth-towerRange, mY-mY%cellwidth+cellwidth-towerRange, 2*towerRange, 2*towerRange);
 				break;
 			case 1:
 				g2d.drawRect(mX-mX%cellwidth, mY-mY%cellwidth, cellwidth, cellwidth);
 				break;
 			case 2:
 				g2d.drawRect(mX-mX%cellwidth, mY-mY%cellwidth, cellwidth*2, cellwidth*2);
-				g2d.drawOval(mX-mX%cellwidth+cellwidth-200, mY-mY%cellwidth+cellwidth-200, 400, 400);
+				g2d.drawOval(mX-mX%cellwidth+cellwidth-missileRange, mY-mY%cellwidth+cellwidth-missileRange, 2*missileRange, 2*missileRange);
 				break;
 			case 3:
 				g2d.drawRect(mX-mX%cellwidth, mY-mY%cellwidth, cellwidth*2, cellwidth*2);
-				g2d.drawOval(mX-mX%cellwidth+cellwidth-50, mY-mY%cellwidth+cellwidth-50, 100, 100);
+				g2d.drawOval(mX-mX%cellwidth+cellwidth-areaPulseRange, mY-mY%cellwidth+cellwidth-areaPulseRange, 2*areaPulseRange, 2*areaPulseRange);
 				break;
 			}
 //			if (selectedTower!=1){
@@ -756,23 +761,26 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 				occupation[i+1][j]=true;
 				occupation[i+1][j+1]=true;
 				Tower twr = new Tower();
+				twr.setRange(towerRange);
 				twr.setX(i*cellwidth + offsetX);
 				twr.setY(j*cellwidth + offsetY);
 				twr.fireDelay = towerFireDelay;
 				if (type == 2){
-					twr.setRange(200);
-					twr.fireDelay = 100;
+					twr.setRange(missileRange);
+					twr.fireDelay = missileFireDelay;
 					twr.type = 2;
 					twr.color = new Color(128, 64, 64);
 					twrs.add(twr);
 					return missileTurretCost;//cost of missile tower
 				} else if (type == 3){
-					twr.setRange(50);
-					twr.fireDelay = 100;
+					twr.setRange(areaPulseRange);
+					twr.fireDelay = areaPulseFireDelay;
 					twr.type = 3;
 					twr.color = new Color(64, 192, 64);
 					twrs.add(twr);
 					return areaPulseCost;//cost of missile tower
+				} else if (type == 4){//TODO add flame turret code
+					
 				}
 				twrs.add(twr);
 				return towerCost;//cost of normal tower
