@@ -56,7 +56,7 @@ public class Tower {
 	{
 		g2d.setColor(color);
 		//g2d.fillRect((int)getX(), (int)getY(), width, height);
-		g2d.fillRoundRect((int)getX(), (int)getY(), width, height, width/2, height/2);
+		g2d.fillRoundRect((int)getX()+1, (int)getY()+1, width-1, height-1, width/2, height/2);
 		if (canFire && type != 3){
 			g2d.setColor(Color.GREEN);
 			int[] xpoints = {getCenterX()-(int)(direction.y/2),getCenterX()+(int)direction.x,getCenterX()+(int)(direction.y/2)};

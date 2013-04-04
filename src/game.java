@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -69,14 +70,24 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 	static final int wavesPerEnemyNumInc = 2;
 	static final int wavesPerEnemyHealthInc = 3;
 	static final double EnemySpeedInc = 0.005;
-	static final double startingEnemySpeed = 0.05;//0.05
-	static final double maxEnemySpeed = 0.2;//not implemented yet
+	static final double startingEnemySpeed = 0.3;// TODO: change back to 0.05
+	static final double maxEnemySpeed = 0.2;
+	static final int enemyWaveDelay = 600; //in number of frames (at 60 fps)
 	static final int moneyPerEnemy = 5;
 	static final int towerCost = 20;
 	static final int areaPulseCost = 200;
 	static final int wallCost = 5;
 	static final int missileTurretCost = 150;
 	static final int towerAccuracy = 3;
+	
+	//button constants
+	int btnW=120;
+	int btnH=15;
+	int btnSpc=20;
+	int btnOffX=15;
+	int btnOffY=37;
+	int btnTextOffX=5;
+	int btnTextOffY=12;
 
 	//2d array that stores occupation booleans
 	boolean[][] occupation = new boolean[50][50];
@@ -86,7 +97,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 	static final int towerFireDelay = 60;//80
 	static final int missileFireDelay = 120;
 	static final int areaPulseFireDelay = 100;
-	static final int towerRange = 100;
+	static final int towerRange = 400;// TODO: change back to 100
 	static final int missileRange = 200;
 	static final int areaPulseRange = 50;
 	
@@ -107,7 +118,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 
 	//enemies arraylist
 	ArrayList<Enemy> nmys = new ArrayList<Enemy>();
-	double ENEMY_SPEED = 0.04;
+	double enemySpeed = 0.04;
 //	boolean createEnemies = false;
 	int enemyCreationCounter = 0;
 	int enemiesToBeCreated = 0;
@@ -147,6 +158,13 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 		Graphics2D g2d = (Graphics2D) screen.getGraphics();
 		Graphics2D appletGraphics = (Graphics2D) getGraphics();
 		
+		BufferedImage cursor = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) cursor.getGraphics();
+		g.setColor(Color.cyan);
+		g.drawLine(0, 6, 12, 6);
+		g.drawLine(6, 0, 6, 12);
+		setCursor(Toolkit.getDefaultToolkit().createCustomCursor(cursor , new Point(6,6), ""));
+		
 		//initialise the listeners
 		addKeyListener(this);
 		addMouseListener(this);
@@ -174,19 +192,19 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 			if (!paused){
 				gameUpdate();
 			}
-			else {
-				if (gameOver){
-					if (mouseB1 && mX>=350 && mX<=450 && mY >=437 && mY<= 452){
-						newGame();
-						mouseB1=false;
-					}
-				}
-				if (!gameOver && !gameStarted){
-					if (mouseB1 && mX>=15 && mX<=135 && mY >=287 && mY<= 302){
-						startGame();
-					}
-				}
-			}
+//			else {
+//				if (gameOver){
+//					if (mouseB1 && mX>=350 && mX<=450 && mY >=437 && mY<= 452){
+//						newGame();
+//						mouseB1=false;
+//					}
+//				}
+//				if (!gameOver && !gameStarted){
+//					if (mouseB1 && mX>=15 && mX<=135 && mY >=287 && mY<= 302){
+//						startGame();
+//					}
+//				}
+//			}
 
 			lastTime = now;
 
@@ -228,7 +246,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 		enemiesToBeCreated = 0;
 		enemyWave = 0;
 		enemyWaveCounter = 0;
-		ENEMY_SPEED = startingEnemySpeed;
+		enemySpeed = startingEnemySpeed;
 	}
 
 	public void newGame()
@@ -330,18 +348,18 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 		for (int i=0;i<numOfTowerTypes;i++)
 		{
 			g2d.setColor(Color.WHITE);
-			g2d.drawString(towerNames[i], 20, 50+20*i);
+			g2d.drawString(towerNames[i], btnOffX+btnTextOffX, btnTextOffY+btnOffY+btnSpc*i);
 			g2d.setColor(Color.GRAY);
 			if (i == selectedTower){g2d.setColor(Color.YELLOW);}
-			g2d.drawRect(15, 37+20*i, 120, 15);
+			g2d.drawRect(btnOffX, btnOffY+btnSpc*i, btnW, btnH);
 		}
 		
 		//draw the antialiasing button
 		g2d.setColor(Color.WHITE);
-		g2d.drawString("Anti-Aliasing", 20, 450);
+		g2d.drawString("Anti-Aliasing", btnOffX+btnTextOffX, offsetY+PAW-btnH+btnTextOffY);
 		g2d.setColor(Color.GRAY);
 		if (antialiasing){g2d.setColor(Color.YELLOW);}
-		g2d.drawRect(15, 437, 120, 15);
+		g2d.drawRect(btnOffX, offsetY+PAW-btnH, btnW, btnH);
 		
 		//draw the pause button
 		if (!gameOver && gameStarted)
@@ -349,10 +367,10 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 			g2d.setColor(Color.WHITE);
 			String t = "pause";
 			if (paused) t = "unpause";
-			g2d.drawString(t, 20, 300);
+			g2d.drawString(t, btnOffX+btnTextOffX, h/2 + btnTextOffY);
 			g2d.setColor(Color.GRAY);
 			if (paused){g2d.setColor(Color.YELLOW);}
-			g2d.drawRect(15, 287, 120, 15);
+			g2d.drawRect(btnOffX, h/2, btnW, btnH);
 		}
 
 		//draw other info
@@ -379,8 +397,8 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 				g2d.drawString("New Game", 370, 450);
 			}
 			if (!gameOver && !gameStarted){
-				g2d.drawRect(15, 287, 120, 15);
-				g2d.drawString("Start Game", 20, 300);
+				g2d.drawRect(btnOffX, h/2 - btnSpc, btnW, btnH);
+				g2d.drawString("Start Game", btnOffX+btnTextOffX, h/2 - btnSpc + btnTextOffY);
 			}
 			g2d.drawString("Paused", offsetX+PAW+20, 180);
 		}
@@ -413,23 +431,62 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 					}
 					if (found){
 						Enemy nmy = nmys.get(index);
+						dist = mindist;
 						if (twrs.get(i).type==0){
 							//use a few iterations to accurately predict the future position of the enemy
-							for (int k=0;k<towerAccuracy;k++){
-								x = nmy.getCenterX() + nmy.getVelX()*(mindist/BULLET_SPEED) - twrs.get(i).getCenterX();
-								y = nmy.getCenterY() + nmy.getVelY()*(mindist/BULLET_SPEED) - twrs.get(i).getCenterY();
-								mindist = Math.sqrt(x*x+y*y);
+//							for (int k=0;k<towerAccuracy;k++){
+//								x = nmy.getCenterX() + nmy.getVelX()*(mindist/BULLET_SPEED) - twrs.get(i).getCenterX();
+//								y = nmy.getCenterY() + nmy.getVelY()*(mindist/BULLET_SPEED) - twrs.get(i).getCenterY();
+//								mindist = Math.sqrt(x*x+y*y);
+//							}
+//							Bullet blt = new Bullet();
+//							blt.setX(twrs.get(i).getCenterX());
+//							blt.setY(twrs.get(i).getCenterY());
+//							x/=mindist;
+//							y/=mindist;
+//							blt.setVelX(x*BULLET_SPEED);
+//							blt.setVelY(y*BULLET_SPEED);
+//							twrs.get(i).direction.x = x*10;
+//							twrs.get(i).direction.y = y*10;
+							//better, exact method
+							//System.out.println("enemy: pos: "+nmy.getCenterX()+","+nmy.getCenterY()+" vel: "+nmy.getVelX()+","+nmy.getVelY());
+							//System.out.println("tower: pos: "+twrs.get(i).getCenterX()+","+twrs.get(i).getCenterY());
+							double a = nmy.getVelX()*nmy.getVelX() + nmy.getVelY()*nmy.getVelY() - BULLET_SPEED*BULLET_SPEED;
+							double b = 2*nmy.getVelX()*(nmy.getCenterX()-twrs.get(i).getCenterX()) + 2*nmy.getVelY()*(nmy.getCenterY()-twrs.get(i).getCenterY());
+							double c = dist*dist;
+							//System.out.println("a = "+a+", b = "+b+", c = "+c);
+							//System.out.println("b*b = "+b*b+", 4*a*c = "+4*a*c);
+							
+							double disc = b*b - 4*a*c;
+							//System.out.println("disc = "+disc);
+							if (disc >= 0){
+								double q = (b + Math.signum(b)*Math.sqrt(disc))/-2.0;
+								double t1 = q/a;
+								double t2 = c/q;
+								//System.out.println("t1: "+t1+", t2: "+t2);
+								double t = 0;
+								if (t1>=0 && t2>=0)
+									t = Math.min(t1, t2);
+								else if (t1>=0)
+									t = t1;
+								else if (t2>=0)
+									t = t2;
+								else
+									continue;
+								Bullet blt = new Bullet();
+								//t+=50;
+								blt.setX(twrs.get(i).getCenterX());
+								blt.setY(twrs.get(i).getCenterY());
+								x = nmy.getVelX() + (nmy.getCenterX() - blt.getCenterX())/t;
+								y = nmy.getVelY() + (nmy.getCenterY() - blt.getCenterY())/t;
+								//System.out.println("bullet vel x = "+x+", y = "+y);
+								//System.out.println("actual, theoretical bullet speed: "+Math.sqrt(x*x+y*y)+", "+BULLET_SPEED);
+								blt.setVelX(x);
+								blt.setVelY(y);
+								blts.add(blt);
+								twrs.get(i).direction.x = x*10/BULLET_SPEED;
+								twrs.get(i).direction.y = y*10/BULLET_SPEED;
 							}
-							Bullet blt = new Bullet();
-							blt.setX(twrs.get(i).getCenterX());
-							blt.setY(twrs.get(i).getCenterY());
-							x/=mindist;
-							y/=mindist;
-							blt.setVelX(x*BULLET_SPEED);
-							blt.setVelY(y*BULLET_SPEED);
-							blts.add(blt);
-							twrs.get(i).direction.x = x*10;
-							twrs.get(i).direction.y = y*10;
 						}
 						else {//if (msls.size()==0){
 							Missile msl = new Missile();
@@ -575,20 +632,20 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 //			}
 			if (vectorField[i][j].x == 0){
 				if (nmys.get(n).getCenterX()>cellx+3 && nmys.get(n).getCenterX()<cellx+cellwidth-3 && nmys.get(n).getCenterY()>celly && nmys.get(n).getCenterY()<celly+cellwidth){
-					nmys.get(n).vel.x=ENEMY_SPEED*vectorField[i][j].x;
-					nmys.get(n).vel.y=ENEMY_SPEED*vectorField[i][j].y;
+					nmys.get(n).vel.x=enemySpeed*vectorField[i][j].x;
+					nmys.get(n).vel.y=enemySpeed*vectorField[i][j].y;
 				}
 			}
 			else if (vectorField[i][j].y == 0){
 				if (nmys.get(n).getCenterX()>cellx && nmys.get(n).getCenterX()<cellx+cellwidth && nmys.get(n).getCenterY()>celly+3 && nmys.get(n).getCenterY()<celly+cellwidth-3){
-					nmys.get(n).vel.x=ENEMY_SPEED*vectorField[i][j].x;
-					nmys.get(n).vel.y=ENEMY_SPEED*vectorField[i][j].y;
+					nmys.get(n).vel.x=enemySpeed*vectorField[i][j].x;
+					nmys.get(n).vel.y=enemySpeed*vectorField[i][j].y;
 				}
 			}
 			else {
 				if (nmys.get(n).getCenterX()>cellx+1 && nmys.get(n).getCenterX()<cellx+cellwidth-1 && nmys.get(n).getCenterY()>celly+1 && nmys.get(n).getCenterY()<celly+cellwidth-1){
-					nmys.get(n).vel.x=ENEMY_SPEED*vectorField[i][j].x;
-					nmys.get(n).vel.y=ENEMY_SPEED*vectorField[i][j].y;
+					nmys.get(n).vel.x=enemySpeed*vectorField[i][j].x;
+					nmys.get(n).vel.y=enemySpeed*vectorField[i][j].y;
 				}
 			}
 			nmys.get(n).updatePos();
@@ -726,14 +783,14 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 	{
 		if (gameStarted)
 		{
-			if (enemiesToBeCreated == 0 && ++enemyWaveCounter>600)//10 seconds @ 60 Hz
+			if (enemiesToBeCreated == 0 && ++enemyWaveCounter>enemyWaveDelay)//10 seconds @ 60 Hz
 			{
 				enemyWaveCounter = 0;
 				enemyWave++;
 				enemiesToBeCreated+=startingEnemies+enemyWave/wavesPerEnemyNumInc;
-				ENEMY_SPEED+=EnemySpeedInc;
+				if (enemySpeed<maxEnemySpeed) enemySpeed+=EnemySpeedInc;
 			}
-			if (enemiesToBeCreated>0 && ++enemyCreationCounter>30/(ENEMY_SPEED/startingEnemySpeed))
+			if (enemiesToBeCreated>0 && ++enemyCreationCounter>30/(enemySpeed/startingEnemySpeed))
 			{
 				enemyCreationCounter = 0;
 				enemiesToBeCreated--;
@@ -999,7 +1056,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 	}
 
 	public void keyTyped(KeyEvent k){}
-	public void keyPressed(KeyEvent k) 
+	public void keyPressed(KeyEvent k)
 	{
 		switch (k.getKeyCode())
 		{
@@ -1027,10 +1084,7 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 		switch (k.getKeyCode())
 		{
 		case KeyEvent.VK_E:
-			enemyWaveCounter = 0;
-			enemyWave++;
-			enemiesToBeCreated+=3+enemyWave/wavesPerEnemyNumInc;
-			ENEMY_SPEED+=0.001;
+			enemyWaveCounter = enemyWaveDelay;
 			break;
 		}
 	}
@@ -1059,6 +1113,30 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 		mY = m.getY();
 		if (m.getButton() == MouseEvent.BUTTON1)
 		{
+			if (mX>btnOffX && mX<btnOffX+btnW){
+				if (mY>offsetY+PAW-btnH && mY<offsetY+PAW)//antiAiliasing button g2d.drawRect(btnOffX, offsetY+PAW-btnH, btnW, btnH);
+				{
+					antialiasing=!antialiasing;
+					//mouseB1=false;
+				}
+				if (!gameOver) {
+					if (mY > h/2 && mY < h/2+btnH && !gameOver && gameStarted) {//pause button g2d.drawRect(btnOffX, h/2, btnW, btnH);
+						paused = !paused;
+						//mouseB1 = false;
+					}
+				}
+				if (!gameOver && !gameStarted){
+					if (mY >h/2-btnSpc && mY< h/2+btnH-btnSpc){
+						startGame();
+					}
+				}
+			}
+			if (gameOver){
+				if (mX>=350 && mX<=450 && mY >=437 && mY<= 452){
+					newGame();
+					//mouseB1=false;
+				}
+			}
 			handleMousePress();
 			mouseB1 = true;
 		}
@@ -1090,23 +1168,13 @@ public class game extends Applet implements Runnable, KeyListener, MouseListener
 			}
 			else
 			{
-				if (mX>15 && mX<135){
+				if (mX>btnOffX && mX<btnOffX+btnW){
 					for (int i=0;i<numOfTowerTypes;i++)
 					{
-						if (mY>37+20*i && mY<52+20*i)
+						if (mY>btnOffY+btnSpc*i && mY<btnOffY+btnH+btnSpc*i)
 						{
 							selectedTower = i;
 						}
-					}
-					if (mY>437 && mY<452)
-					{
-						antialiasing=!antialiasing;
-						mouseB1=false;
-					}
-					if (mY > 287 && mY < 302 && !gameOver && gameStarted)
-					{
-						paused=!paused;
-						mouseB1=false;
 					}
 				}
 			}
